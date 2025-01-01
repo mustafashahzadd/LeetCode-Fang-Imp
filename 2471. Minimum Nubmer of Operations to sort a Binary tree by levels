@@ -1,0 +1,81 @@
+Question Link: https://leetcode.com/problems/minimum-number-of-operations-to-sort-a-binary-tree-by-level/
+2471. Minimum Nubmer of Operations to sort a Binary tree by levels
+
+Hint: Use Hash Maps 
+i.e By using the hashmap to optimize lookups and updates, the algorithm ensures that it only takes 
+𝑂(𝑛)
+O(n) iterations for the traversal (with 
+𝑂(1)
+O(1) operations for each lookup and update), making the process efficient even for large arrays.
+
+
+Time Complexity : O(nlog(n)
+Space Complexty: O(n)
+
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int minimumOperations(TreeNode* root) {
+        queue<TreeNode*> queue;
+        queue.push(root);
+        int totalSwaps=0;
+
+        //Process tree level by level using BFS
+        while(!queue.empty()){
+            int levelSize = queue.size();
+            vector<int> levelValues(levelSize);
+
+            //Store values of current level and add children to queue
+            for(int i=0; i<levelSize; i++){
+                TreeNode* node = queue.front();
+                queue.pop();
+                levelValues[i]=node->val;
+                if(node->left !=nullptr) queue.push(node->left);
+                if(node->right !=nullptr) queue.push(node->right);
+            }
+            //Add minimum swaps needed to current level
+            totalSwaps += getMinSwaps(levelValues);
+        }
+        return totalSwaps;
+    } 
+
+    private:
+    //Calculate minimum swaps needed to sort an array
+    int getMinSwaps(vector<int>& orignal){
+        int swaps=0;
+        vector<int> target = orignal;
+        sort(target.begin(), target.end());
+
+    //Map to track current position of values
+    unordered_map<int,int> pos;
+
+    for(int i =0 ;i<orignal.size();i++){
+        pos[orignal[i]]=i;
+    }
+
+    //for each position, swap until correct value is placed
+    for(int i=0; i<orignal.size();i++){
+        if(orignal[i] != target[i]){
+            swaps++;
+
+            //update position of swapped values
+            int curpos = pos[target[i]];
+            pos[orignal[i]]= curpos;
+            swap(orignal[curpos], orignal[i]);
+        }
+    }
+    return swaps;
+
+
+    }
+};
